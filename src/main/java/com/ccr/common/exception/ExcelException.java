@@ -6,6 +6,8 @@ package com.ccr.common.exception;
  */
 public class ExcelException extends Exception {
 
+    private static final long serialVersionUID = 7582457389069996252L;
+
     public ExcelException() {
     }
 
