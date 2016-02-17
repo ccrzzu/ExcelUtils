@@ -1,54 +1,42 @@
-package com.ksyun.live.common.util;
+package com.ccr.common.utils;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.ks3.cdn.exception.ExcelException;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
 
-import com.ksyun.live.common.exception.ExcelException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
- * Created by Chengrui on 2015/6/24.
- * 
+ * Created by cuichengrui on 2015/6/24.
+ *
  * @Description Excel导入导出工具类
  */
 public class ExcelUtils {
 
     /**
+     * @param list      数据源
+     * @param fieldMap  类的英文属性和Excel中的中文列名的对应关系 例：{id=编号}
+     *                  如果需要的是引用对象的属性，则英文属性使用类似于EL表达式的格式
+     *                  如：list中存放的都是student，student中又有college属性，而我们需要学院名称，则可以这样写
+     *                  fieldMap.put("college.collegeName","学院名称")
+     * @param sheetName 工作表的名称
+     * @param sheetSize 每个工作表中记录的最大个数
+     * @param os        导出流
+     * @throws ExcelException
      * @MethodName : listToExcel
      * @Description : 导出Excel（可以导出到本地文件系统，也可以导出到浏览器，可自定义工作表大小）
-     * @param list
-     *            数据源
-     * @param fieldMap
-     *            类的英文属性和Excel中的中文列名的对应关系 例：{id=编号}
-     *            如果需要的是引用对象的属性，则英文属性使用类似于EL表达式的格式
-     *            如：list中存放的都是student，student中又有college属性，而我们需要学院名称，则可以这样写
-     *            fieldMap.put("college.collegeName","学院名称")
-     * @param sheetName
-     *            工作表的名称
-     * @param sheetSize
-     *            每个工作表中记录的最大个数
-     * @param os
-     *            导出流
-     * @throws ExcelException
      */
     public static <T> void listToExcel(List<T> list, LinkedHashMap<String, String> fieldMap, String sheetName, int sheetSize, OutputStream os) throws ExcelException {
 
@@ -106,36 +94,27 @@ public class ExcelUtils {
     }
 
     /**
+     * @param list      数据源
+     * @param fieldMap  类的英文属性和Excel中的中文列名的对应关系
+     * @param sheetName 工作表的名称
+     * @param os        导出流
+     * @throws ExcelException
      * @MethodName : listToExcel
      * @Description : 导出Excel（可以导出到本地文件系统，也可以导出到浏览器，工作表大小为2003支持的最大值）
-     * @param list
-     *            数据源
-     * @param fieldMap
-     *            类的英文属性和Excel中的中文列名的对应关系
-     * @param sheetName
-     *            工作表的名称
-     * @param os
-     *            导出流
-     * @throws ExcelException
      */
     public static <T> void listToExcel(List<T> list, LinkedHashMap<String, String> fieldMap, String sheetName, OutputStream os) throws ExcelException {
         listToExcel(list, fieldMap, sheetName, 65535, os);
     }
 
     /**
+     * @param list      数据源
+     * @param fieldMap  类的英文属性和Excel中的中文列名的对应关系
+     * @param sheetName 工作表的名称
+     * @param sheetSize 每个工作表中记录的最大个数
+     * @param response  使用response可以导出到浏览器
+     * @throws ExcelException
      * @MethodName : listToExcel
      * @Description : 导出Excel（导出到浏览器，可以自定义工作表的大小）
-     * @param list
-     *            数据源
-     * @param fieldMap
-     *            类的英文属性和Excel中的中文列名的对应关系
-     * @param sheetName
-     *            工作表的名称
-     * @param sheetSize
-     *            每个工作表中记录的最大个数
-     * @param response
-     *            使用response可以导出到浏览器
-     * @throws ExcelException
      */
     public static <T> void listToExcel(List<T> list, LinkedHashMap<String, String> fieldMap, String sheetName, int sheetSize, HttpServletResponse response) throws ExcelException {
         // 文件名默认设置为当前时间：年月日时分秒
@@ -163,37 +142,28 @@ public class ExcelUtils {
     }
 
     /**
+     * @param list      数据源
+     * @param fieldMap  类的英文属性和Excel中的中文列名的对应关系
+     * @param sheetName 工作表的名称
+     * @param response  使用response可以导出到浏览器
+     * @throws ExcelException
      * @MethodName : listToExcel
      * @Description : 导出Excel（导出到浏览器，工作表的大小是2003支持的最大值:65535）
-     * @param list
-     *            数据源
-     * @param fieldMap
-     *            类的英文属性和Excel中的中文列名的对应关系
-     * @param sheetName
-     *            工作表的名称
-     * @param response
-     *            使用response可以导出到浏览器
-     * @throws ExcelException
      */
     public static <T> void listToExcel(List<T> list, LinkedHashMap<String, String> fieldMap, String sheetName, HttpServletResponse response) throws ExcelException {
         listToExcel(list, fieldMap, sheetName, 65535, response);
     }
 
     /**
-     * @MethodName : fillSheet
-     * @Description : 向工作表中填充数据
-     * @param sheet
-     *            工作表
-     * @param list
-     *            数据源数据
-     * @param fieldMap
-     *            中英文属性对照关系map
-     * @param firstIndex
-     *            开始索引
-     * @param lastIndex
-     *            结束索引
+     * @param sheet      工作表
+     * @param list       数据源数据
+     * @param fieldMap   中英文属性对照关系map
+     * @param firstIndex 开始索引
+     * @param lastIndex  结束索引
      * @param <E>
      * @throws Exception
+     * @MethodName : fillSheet
+     * @Description : 向工作表中填充数据
      */
     private static <E> void fillSheet(WritableSheet sheet, List<E> list, LinkedHashMap<String, String> fieldMap, int firstIndex, int lastIndex) throws Exception {
         // 定义存放英文字段名和中文字段名的数组
@@ -232,16 +202,13 @@ public class ExcelUtils {
     }
 
     /**
-     * @MethodName : getFieldValueByNameSequence
-     * @Description : 根据带路径或不带路径的属性名获取属性值
-     *              即接受简单属性名，如userName等，又接受带路径的属性名，如student.department.name等
-     *
-     * @param fieldNameSequence
-     *            带路径的属性名或简单属性名
-     * @param o
-     *            对象
+     * @param fieldNameSequence 带路径的属性名或简单属性名
+     * @param o                 对象
      * @return 属性值
      * @throws Exception
+     * @MethodName : getFieldValueByNameSequence
+     * @Description : 根据带路径或不带路径的属性名获取属性值
+     * 即接受简单属性名，如userName等，又接受带路径的属性名，如student.department.name等
      */
     private static Object getFieldValueByNameSequence(String fieldNameSequence, Object o) throws Exception {
         Object value = null;
@@ -260,13 +227,11 @@ public class ExcelUtils {
     }
 
     /**
+     * @param fieldName 字段名
+     * @param o         对象
+     * @return 字段值
      * @MethodName : getFieldValueByName
      * @Description : 根据字段名获取字段值
-     * @param fieldName
-     *            字段名
-     * @param o
-     *            对象
-     * @return 字段值
      */
     private static Object getFieldValueByName(String fieldName, Object o) throws Exception {
         Object value = null;
@@ -283,13 +248,11 @@ public class ExcelUtils {
     }
 
     /**
+     * @param fieldName 字段名
+     * @param clazz     包含该字段的类
+     * @return 字段
      * @MethodName : getFieldByName
      * @Description : 根据字段名获取字段
-     * @param fieldName
-     *            字段名
-     * @param clazz
-     *            包含该字段的类
-     * @return 字段
      */
     private static Field getFieldByName(String fieldName, Class<?> clazz) {
         // 拿到本类所有的字段
@@ -313,9 +276,9 @@ public class ExcelUtils {
     }
 
     /**
+     * @param ws
      * @MethodName : setColumnAutoSize
      * @Description : 设置工作表自动列宽和首行加粗
-     * @param ws
      */
     private static void setColumnAutoSize(WritableSheet ws, int extraWith) {
         // 获取本列的最宽单元格的宽度
@@ -334,19 +297,14 @@ public class ExcelUtils {
     }
 
     /**
-     * @Description 将Excel转化成实体对象List
-     * @param is
-     *            要导入Excel的输入流
-     * @param sheetName
-     *            导入的工作表名称
-     * @param entityClass
-     *            List中对象的类型（Excel中的每一行都要转化为该类型的对象）
-     * @param fieldMap
-     *            类的英文属性和Excel中的中文列名的对应关系 例：{id=编号}
-     * @param uniqueFields
-     *            指定业务主键组合（即复合主键），这些列的组合不能重复
+     * @param is           要导入Excel的输入流
+     * @param sheetName    导入的工作表名称
+     * @param entityClass  List中对象的类型（Excel中的每一行都要转化为该类型的对象）
+     * @param fieldMap     类的英文属性和Excel中的中文列名的对应关系 例：{id=编号}
+     * @param uniqueFields 指定业务主键组合（即复合主键），这些列的组合不能重复
      * @return List
      * @throws ExcelException
+     * @Description 将Excel转化成实体对象List
      */
     public static <T> List<T> excelToList(InputStream is, String sheetName, Class<T> entityClass, LinkedHashMap<String, String> fieldMap, String[] uniqueFields) throws ExcelException {
         // 定义要返回的list
@@ -474,15 +432,15 @@ public class ExcelUtils {
     }
 
     /**
+     * @param fieldName  字段名
+     * @param fieldValue 字段值
+     * @param o          对象
      * @Description 根据字段名给对象的字段赋值
-     * @param fieldName
-     *            字段名
-     * @param fieldValue
-     *            字段值
-     * @param o
-     *            对象
      */
     private static void setFieldValueByName(String fieldName, Object fieldValue, Object o) throws Exception {
+//        if (fieldName.equals("id") || fieldName.equals("operatorId")) {
+//            return;
+//        }
         Field field = getFieldByName(fieldName, o.getClass());
         if (field != null) {
             field.setAccessible(true);
@@ -507,7 +465,25 @@ public class ExcelUtils {
                     field.set(o, Character.valueOf(fieldValue.toString().charAt(0)));
                 }
             } else if (Date.class == fieldType) {
-                field.set(o, DateUtils.parseDate(fieldValue.toString(), new String[] { "yyyy-MM-dd HH:mm:ss" }));
+                String dateStr = fieldValue.toString();
+//                String[] split = dateStr.split("/");
+//                StringBuilder sb = new StringBuilder();
+//                int i = 0;
+//                for (String str : split) {
+//                    if (i == split.length - 1) {
+//                        sb.append("20" + str);
+//                        continue;
+//                    }
+//                    sb.append(str).append("/");
+//                    i++;
+//                }
+//                dateStr = sb.toString();
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+                Date parseDate = formatter.parse(dateStr);
+                //Date parseDate = DateUtils.parseDate(fieldValue.toString(), new String[] { "MM/dd/yyyy HH:mm:ss" });
+                field.set(o, parseDate);
+            } else if (BigDecimal.class == fieldType) {
+                field.set(o, new BigDecimal(fieldValue.toString()));
             } else {
                 field.set(o, fieldValue);
             }
@@ -518,25 +494,32 @@ public class ExcelUtils {
 
     public static void main(String args[]) throws Exception {
         try {
-            /*
-             * List<Student> students = new ArrayList<Student>(); Student s1 =
-             * new Student(); s1.setId(1); s1.setName("Tom"); s1.setScore(78);
-             * students.add(s1);
-             * 
-             * Student s2 = new Student(); s2.setId(2); s2.setName("Hanks");
-             * s2.setScore(56); students.add(s2);
-             * 
-             * Student s3 = new Student(); s3.setId(3); s3.setName("jerry");
-             * s3.setScore(99); students.add(s3);
-             * 
-             * LinkedHashMap<String, String> fieldMap = new
-             * LinkedHashMap<String, String>(); fieldMap.put("id", "编号");
-             * fieldMap.put("name", "姓名"); fieldMap.put("score", "分数");
-             * 
-             * File osFile = new File("e:/test.xls"); FileOutputStream fos = new
-             * FileOutputStream(osFile); listToExcel(students, fieldMap,
-             * "studentScore", fos);
-             */
+//            List<Student> students = new ArrayList<Student>();
+//            Student s1 = new Student();
+//            s1.setId(1);
+//            s1.setName("Tom");
+//            s1.setScore(78);
+//            students.add(s1);
+//
+//            Student s2 = new Student();
+//            s2.setId(2);
+//            s2.setName("Hanks");
+//            s2.setScore(56);
+//            students.add(s2);
+//
+//            Student s3 = new Student();
+//            s3.setId(3);
+//            s3.setName("jerry");
+//            s3.setScore(99);
+//            students.add(s3);
+//
+//            LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+//            fieldMap.put("id", "编号");
+//            fieldMap.put("name", "姓名");
+//            fieldMap.put("score", "分数");
+//            File osFile = new File("e:/test.xls");
+//            FileOutputStream fos = new FileOutputStream(osFile);
+//            listToExcel(students, fieldMap, "studentScore", fos);
             System.out.println("download success!");
         } catch (Exception e) {
             throw new Exception("export error:" + e.getMessage());
